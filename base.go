@@ -1,14 +1,15 @@
 package sql
 
 import (
-	"github.com/jinzhu/gorm"
-	"github.com/kulichak/models"
 	"time"
 )
 
+type IBaseModel interface {
+
+}
+
 type BaseModel struct {
-	models.BaseModel
-	gorm.Model
+	IBaseModel
 
 	ID        uint64     `json:"id,omitempty" gorm:"primary_key"`
 	CreatedAt time.Time  `json:"created_at,omitempty"`
