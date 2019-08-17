@@ -51,14 +51,34 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 	query.Limit(request.PerPage).Offset(offset).Find(request.Models)
 	<-done
 
+	pageCount := uint64(math.Ceil(float64(totalCount) / float64(request.PerPage)))
 	return &models.PaginateResult{
 		Items: request.Models,
 		Pagination: models.PaginationInfo{
 			Page:       request.Page,
 			PerPage:    request.PerPage,
-			//HasNext:    uint64(len(result)) >= *request.PerPage,
-			PageCount:  uint64(math.Ceil(float64(totalCount) / float64(request.PerPage))),
+			HasNext:    pageCount > request.Page,
+			PageCount:  pageCount,
 			TotalCount: totalCount,
 		},
 	}, nil
+}
+
+
+func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, error) {
+	db, err := GetDb()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	q, params := mts.Parse(*request.Filters)
+
+	query := db.
+		Model(request.Model).
+		Where(q, params...)
+
+	query.Find(request.Model)
+
+	return &request.Model, nil
 }
