@@ -5,11 +5,10 @@ import (
 )
 
 type IBaseModel interface {
-
 }
 
 type BaseModel struct {
-	IBaseModel
+	IBaseModel `json:"-"`
 
 	ID        uint64     `json:"id,omitempty" gorm:"primary_key"`
 	CreatedAt time.Time  `json:"created_at,omitempty"`
