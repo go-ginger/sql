@@ -25,7 +25,7 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 	done := make(chan bool, 1)
 
 	query := db.
-		Model(request.Model).
+		Model(request.Models).
 		Where(q, params...)
 
 	var totalCount uint64

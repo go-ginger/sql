@@ -8,7 +8,10 @@ func (handler *DbHandler) Insert(request *models.Request) (obj interface{}, err 
 		return
 	}
 	defer db.Close()
-	db.Create(request.Body)
+	dbc := db.Create(request.Body)
+	if dbc.Error != nil {
+		return nil, models.HandleError(dbc.Error)
+	}
 	obj = request.Body
 	return
 }
