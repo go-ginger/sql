@@ -8,7 +8,7 @@ import (
 type BaseModel struct {
 	models.BaseModel `json:"-" gorm:"-"`
 
-	ID        uint64     `json:"id,omitempty" gorm:"primary_key"`
+	ID        uint64     `json:"id,omitempty" gorm:"primary_key,AUTO_INCREMENT"`
 	CreatedAt time.Time  `json:"created_at,omitempty" sql:"index"`
 	UpdatedAt time.Time  `json:"updated_at,omitempty"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
