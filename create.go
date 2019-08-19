@@ -12,5 +12,6 @@ func (handler *DbHandler) Insert(request *models.Request) (obj interface{}, err 
 	if dbc.Error != nil {
 		return nil, models.HandleError(dbc.Error)
 	}
+	obj = request.Body
 	return
 }
