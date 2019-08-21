@@ -32,6 +32,15 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 	go handler.countRecords(query, done, &totalCount)
 
 	//var result = &request.Result //helpers.CreateArray(reflect.TypeOf(handler.Model), 0)
+	if request.Sort != nil {
+		for _, s := range *request.Sort {
+			sort := s.Name
+			if !s.Ascending{
+				sort += " DESC"
+			}
+			query = query.Order(sort)
+		}
+	}
 	query.Limit(request.PerPage).Offset(offset).Find(request.Models)
 	<-done
 
