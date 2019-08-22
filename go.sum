@@ -56,12 +56,15 @@ github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxv
 github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515/go.mod h1:+0opPa2QZZtGFBFZlji/RkVcI2GknAs/DXo4wKdlNEc=
 github.com/kulichak/dl v1.0.1 h1:/lkGMotz6JmPCvL5bPEpfk2VPV/mxRoIS47DG0NjlHQ=
 github.com/kulichak/dl v1.0.1/go.mod h1:6Z5DHTNxxx9hc+Z21dQM6sndqfG00XrplOE65/pybew=
+github.com/kulichak/dl v1.0.3/go.mod h1:9O/NRXD+K4YU4Zy+Yd1l+rmygErMAR10FKz4h1TmDsk=
 github.com/kulichak/models v0.0.0-20190815104841-46cee7c45041/go.mod h1:PD3HePepKTcRb2Jnzbc1bMzXavhObQ3ElFNMS9R8dbs=
 github.com/kulichak/models v1.0.1 h1:ee9LojrodctBQqJ5t8tv6Li2G3k1jj+PGunq7bVsZMM=
 github.com/kulichak/models v1.0.1/go.mod h1:PD3HePepKTcRb2Jnzbc1bMzXavhObQ3ElFNMS9R8dbs=
+github.com/kulichak/models v1.0.3/go.mod h1:URMctkWqfKXGJ8q9Qa9oLZunn2o2C1q83lc7jecbevQ=
 github.com/kulichak/mts v1.0.1 h1:7k+AzE8J2GvlpbX191VLV8DuY8WVrew6SB2U01oNwvU=
 github.com/kulichak/mts v1.0.1/go.mod h1:Dq6l2wdcbpvKH++TNdUMgtpxyZ7t8cZuDLmXP1pcbgs=
 github.com/kulichak/mts v1.0.2/go.mod h1:WQ7KkIcZr6LZru/jtNw6fSJyl51D5/KCYndbQjesJbc=
+github.com/kulichak/mts v1.0.3/go.mod h1:N+QXY+ZVBmA2wnXp7silS4mHihF1sKw8JdU46IQObPM=
 github.com/lib/pq v1.1.1/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/mattn/go-isatty v0.0.7 h1:UvyT9uN+3r7yLEYSlJsbQGdsaB/a0DlgWP3pql6iwOc=
 github.com/mattn/go-isatty v0.0.7/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
