@@ -35,7 +35,7 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 	if request.Sort != nil {
 		for _, s := range *request.Sort {
 			sort := s.Name
-			if !s.Ascending{
+			if !s.Ascending {
 				sort += " DESC"
 			}
 			query = query.Order(sort)
@@ -56,7 +56,6 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 	}, nil
 }
 
-
 func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, error) {
 	db, err := GetDb()
 	if err != nil {
@@ -70,7 +69,13 @@ func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, erro
 		Model(request.Model).
 		Where(q, params...)
 
-	query.Find(request.Model)
+	dbc := query.Find(request.Model)
+	if dbc.Error != nil {
+		if dbc.RecordNotFound() {
+			return nil, models.GetError(models.NOT_FOUND)
+		}
+		return nil, models.HandleError(dbc.Error)
+	}
 
 	return &request.Model, nil
 }
