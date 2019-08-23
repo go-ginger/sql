@@ -62,7 +62,6 @@ func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, erro
 		return nil, err
 	}
 	defer db.Close()
-
 	q, params := mts.Parse(*request.Filters)
 
 	query := db.
@@ -72,7 +71,7 @@ func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, erro
 	dbc := query.Find(request.Model)
 	if dbc.Error != nil {
 		if dbc.RecordNotFound() {
-			return nil, models.GetError(models.NOT_FOUND)
+			return nil, models.GetError(models.NotFoundError)
 		}
 		return nil, models.HandleError(dbc.Error)
 	}

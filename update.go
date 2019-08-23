@@ -19,8 +19,8 @@ func (handler *DbHandler) Update(request *models.Request) error {
 	if dbc.Error != nil {
 		return models.HandleError(dbc.Error)
 	}
-	if db.RowsAffected == 0 {
-		return models.GetError(models.NOT_FOUND)
+	if dbc.RowsAffected == 0 {
+		return models.GetError(models.NotFoundError)
 	}
 	return handler.BaseDbHandler.Update(request)
 }
