@@ -13,5 +13,6 @@ func (handler *DbHandler) Insert(request *models.Request) (obj interface{}, err 
 		return nil, models.HandleError(dbc.Error)
 	}
 	obj = request.Body
-	return handler.BaseDbHandler.Insert(request)
+	handler.BaseDbHandler.Insert(request)
+	return
 }
