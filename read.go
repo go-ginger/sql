@@ -57,7 +57,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	}, nil
 }
 
-func (handler *DbHandler) Get(request models.IRequest) (*models.IBaseModel, error) {
+func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error) {
 	db, err := GetDb()
 	if err != nil {
 		return nil, err
@@ -65,11 +65,15 @@ func (handler *DbHandler) Get(request models.IRequest) (*models.IBaseModel, erro
 	defer db.Close()
 	req := request.GetBaseRequest()
 
-	q, params := mts.Parse(*req.Filters)
-
-	query := db.
-		Model(req.Model).
-		Where(q, params...)
+	var q interface{}
+	var params []interface{}
+	if req.Filters != nil {
+		q, params = mts.Parse(*req.Filters)
+	}
+	query := db.Model(&req.Model)
+	if q != nil && params != nil {
+		query = query.Where(q, params...)
+	}
 
 	dbc := query.Find(req.Model)
 	if dbc.Error != nil {
@@ -79,5 +83,5 @@ func (handler *DbHandler) Get(request models.IRequest) (*models.IBaseModel, erro
 		return nil, models.HandleError(dbc.Error)
 	}
 
-	return &req.Model, nil
+	return req.Model, nil
 }
