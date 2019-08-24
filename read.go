@@ -12,28 +12,29 @@ func (handler *DbHandler) countRecords(db *gorm.DB, done chan bool, count *uint6
 	done <- true
 }
 
-func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateResult, error) {
+func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateResult, error) {
 	db, err := GetDb()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
+	req := request.GetBaseRequest()
 
-	q, params := mts.Parse(*request.Filters)
-	offset := (request.Page - 1) * request.PerPage
+	q, params := mts.Parse(*req.Filters)
+	offset := (req.Page - 1) * req.PerPage
 
 	done := make(chan bool, 1)
 
 	query := db.
-		Model(request.Models).
+		Model(req.Models).
 		Where(q, params...)
 
 	var totalCount uint64
 	go handler.countRecords(query, done, &totalCount)
 
 	//var result = &request.Result //helpers.CreateArray(reflect.TypeOf(handler.Model), 0)
-	if request.Sort != nil {
-		for _, s := range *request.Sort {
+	if req.Sort != nil {
+		for _, s := range *req.Sort {
 			sort := s.Name
 			if !s.Ascending {
 				sort += " DESC"
@@ -41,34 +42,36 @@ func (handler *DbHandler) Paginate(request *models.Request) (*models.PaginateRes
 			query = query.Order(sort)
 		}
 	}
-	query.Limit(request.PerPage).Offset(offset).Find(request.Models)
+	query.Limit(req.PerPage).Offset(offset).Find(req.Models)
 	<-done
 
-	pageCount := uint64(math.Ceil(float64(totalCount) / float64(request.PerPage)))
+	pageCount := uint64(math.Ceil(float64(totalCount) / float64(req.PerPage)))
 	return &models.PaginateResult{
-		Items: request.Models,
+		Items: req.Models,
 		Pagination: models.PaginationInfo{
-			Page:       request.Page,
-			PerPage:    request.PerPage,
+			Page:       req.Page,
+			PerPage:    req.PerPage,
 			PageCount:  pageCount,
 			TotalCount: totalCount,
 		},
 	}, nil
 }
 
-func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, error) {
+func (handler *DbHandler) Get(request models.IRequest) (*models.IBaseModel, error) {
 	db, err := GetDb()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
-	q, params := mts.Parse(*request.Filters)
+	req := request.GetBaseRequest()
+
+	q, params := mts.Parse(*req.Filters)
 
 	query := db.
-		Model(request.Model).
+		Model(req.Model).
 		Where(q, params...)
 
-	dbc := query.Find(request.Model)
+	dbc := query.Find(req.Model)
 	if dbc.Error != nil {
 		if dbc.RecordNotFound() {
 			return nil, models.GetError(models.NotFoundError)
@@ -76,5 +79,5 @@ func (handler *DbHandler) Get(request *models.Request) (*models.IBaseModel, erro
 		return nil, models.HandleError(dbc.Error)
 	}
 
-	return &request.Model, nil
+	return &req.Model, nil
 }

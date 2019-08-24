@@ -4,18 +4,19 @@ import (
 	"github.com/kulichak/models"
 )
 
-func (handler *DbHandler) Update(request *models.Request) error {
+func (handler *DbHandler) Update(request models.IRequest) error {
 	db, err := GetDb()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
+	req := request.GetBaseRequest()
 
 	query := db.
-		Model(request.Model).
-		Where("id=?", request.ID)
+		Model(req.Model).
+		Where("id=?", req.ID)
 
-	dbc := query.Update(request.Body)
+	dbc := query.Update(req.Body)
 	if dbc.Error != nil {
 		return models.HandleError(dbc.Error)
 	}
