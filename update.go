@@ -20,6 +20,12 @@ func (handler *DbHandler) Update(request models.IRequest) error {
 	if dbc.Error != nil {
 		return models.HandleError(dbc.Error)
 	}
+	if req.ExtraQuery != nil {
+		for key, value := range req.ExtraQuery {
+			r := query.UpdateColumn(key, value)
+			print(r)
+		}
+	}
 	if dbc.RowsAffected == 0 {
 		return models.GetError(models.NotFoundError)
 	}
