@@ -86,12 +86,23 @@ func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error
 	return req.Model, nil
 }
 
-func (handler *DbHandler) Select(tableName string, query string, dest interface{}, args ...interface{}) (err error) {
+func (handler *DbHandler) Select(request models.IRequest, tableName string, selectQuery string,
+	dest interface{}, args ...interface{}) (err error) {
 	db, err := GetDb()
 	if err != nil {
 		return
 	}
 	defer db.Close()
-	db.Table(tableName).Select(query, args...).Scan(dest)
+	req := request.GetBaseRequest()
+	var q interface{}
+	var params []interface{}
+	if req.Filters != nil {
+		q, params = mts.Parse(*req.Filters)
+	}
+	query := db.Table(tableName).Select(selectQuery, args...)
+	if q != nil && params != nil {
+		query = query.Where(q, params...)
+	}
+	query.Scan(dest)
 	return
 }
