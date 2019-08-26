@@ -22,12 +22,11 @@ func (handler *DbHandler) Update(request models.IRequest) error {
 	}
 	if req.ExtraQuery != nil {
 		for key, value := range req.ExtraQuery {
-			r := query.UpdateColumn(key, value)
-			print(r)
+			query.UpdateColumn(key, value)
 		}
 	}
-	if dbc.RowsAffected == 0 {
-		return models.GetError(models.NotFoundError)
-	}
+	//if dbc.RowsAffected == 0 {
+	//	return models.GetError(models.NotFoundError)
+	//}
 	return handler.BaseDbHandler.Update(request)
 }
