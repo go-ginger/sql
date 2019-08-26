@@ -85,3 +85,13 @@ func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error
 
 	return req.Model, nil
 }
+
+func (handler *DbHandler) Select(tableName string, query string, dest interface{}, args ...interface{}) (err error) {
+	db, err := GetDb()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	db.Table(tableName).Select(query, args...).Scan(dest)
+	return
+}
