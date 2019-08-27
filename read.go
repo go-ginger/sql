@@ -20,14 +20,20 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	defer db.Close()
 	req := request.GetBaseRequest()
 
-	q, params := mts.Parse(*req.Filters)
+	var q interface{}
+	var params []interface{}
+	if req.Filters != nil {
+		q, params = mts.Parse(*req.Filters)
+	}
 	offset := (req.Page - 1) * req.PerPage
 
 	done := make(chan bool, 1)
 
-	query := db.
-		Model(req.Models).
-		Where(q, params...)
+	query := db.Model(req.Models)
+
+	if q != nil && params != nil {
+		query = query.Where(q, params...)
+	}
 
 	var totalCount uint64
 	go handler.countRecords(query, done, &totalCount)
