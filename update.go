@@ -2,6 +2,7 @@ package sql
 
 import (
 	"github.com/kulichak/models"
+	"github.com/kulichak/models/errors"
 )
 
 func (handler *DbHandler) Update(request models.IRequest) error {
@@ -18,7 +19,7 @@ func (handler *DbHandler) Update(request models.IRequest) error {
 
 	dbc := query.Update(req.Body)
 	if dbc.Error != nil {
-		return models.HandleError(dbc.Error)
+		return errors.HandleError(dbc.Error)
 	}
 	if req.ExtraQuery != nil {
 		for key, value := range req.ExtraQuery {

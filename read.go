@@ -3,6 +3,7 @@ package sql
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/kulichak/models"
+	"github.com/kulichak/models/errors"
 	"github.com/kulichak/mts"
 	"math"
 )
@@ -84,9 +85,9 @@ func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error
 	dbc := query.Find(req.Model)
 	if dbc.Error != nil {
 		if dbc.RecordNotFound() {
-			return nil, models.GetError(models.NotFoundError)
+			return nil, errors.GetError(errors.NotFoundError)
 		}
-		return nil, models.HandleError(dbc.Error)
+		return nil, errors.HandleError(dbc.Error)
 	}
 
 	return req.Model, nil
