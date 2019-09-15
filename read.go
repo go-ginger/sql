@@ -60,6 +60,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 			PerPage:    req.PerPage,
 			PageCount:  pageCount,
 			TotalCount: totalCount,
+			HasNext: req.Page < pageCount,
 		},
 	}, nil
 }
