@@ -1,8 +1,8 @@
 package sql
 
 import (
-	"github.com/kulichak/models"
-	"github.com/kulichak/models/errors"
+	"github.com/go-ginger/models"
+	"github.com/go-ginger/models/errors"
 )
 
 func (handler *DbHandler) Insert(request models.IRequest) (result interface{}, err error) {

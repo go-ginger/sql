@@ -2,9 +2,9 @@ package sql
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/kulichak/models"
-	"github.com/kulichak/models/errors"
-	"github.com/kulichak/mts"
+	"github.com/go-ginger/models"
+	"github.com/go-ginger/models/errors"
+	"github.com/go-ginger/mts"
 	"math"
 )
 

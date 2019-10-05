@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"github.com/kulichak/models"
+	"github.com/go-ginger/models"
 	"reflect"
 )
 

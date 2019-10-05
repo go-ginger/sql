@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"github.com/kulichak/dl"
+	"github.com/go-ginger/dl"
 )
 
 type DbHandler struct {
