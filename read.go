@@ -1,10 +1,10 @@
 package sql
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/go-ginger/models"
 	"github.com/go-ginger/models/errors"
 	"github.com/go-ginger/mts"
+	"github.com/jinzhu/gorm"
 	"math"
 )
 
@@ -30,7 +30,8 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 
 	done := make(chan bool, 1)
 
-	query := db.Model(req.Models)
+	items := handler.GetModelsInstance()
+	query := db.Model(items)
 
 	if q != nil && params != nil {
 		query = query.Where(q, params...)
@@ -49,23 +50,23 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 			query = query.Order(sort)
 		}
 	}
-	query.Limit(req.PerPage).Offset(offset).Find(req.Models)
+	query.Limit(req.PerPage).Offset(offset).Find(items)
 	<-done
 
 	pageCount := uint64(math.Ceil(float64(totalCount) / float64(req.PerPage)))
 	return &models.PaginateResult{
-		Items: req.Models,
+		Items: items,
 		Pagination: models.PaginationInfo{
 			Page:       req.Page,
 			PerPage:    req.PerPage,
 			PageCount:  pageCount,
 			TotalCount: totalCount,
-			HasNext: req.Page < pageCount,
+			HasNext:    req.Page < pageCount,
 		},
 	}, nil
 }
 
-func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error) {
+func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel, err error) {
 	db, err := GetDb()
 	if err != nil {
 		return nil, err
@@ -78,20 +79,21 @@ func (handler *DbHandler) Get(request models.IRequest) (models.IBaseModel, error
 	if req.Filters != nil {
 		q, params = mts.Parse(*req.Filters)
 	}
-	query := db.Model(&req.Model)
+	model := handler.GetModelInstance()
+	query := db.Model(model)
 	if q != nil && params != nil {
 		query = query.Where(q, params...)
 	}
 
-	dbc := query.Find(req.Model)
+	dbc := query.Find(model)
 	if dbc.Error != nil {
 		if dbc.RecordNotFound() {
 			return nil, errors.GetError(errors.NotFoundError)
 		}
 		return nil, errors.HandleError(dbc.Error)
 	}
-
-	return req.Model, nil
+	result = model.(models.IBaseModel)
+	return
 }
 
 func (handler *DbHandler) Select(request models.IRequest, tableName string, selectQuery string,

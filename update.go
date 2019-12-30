@@ -12,9 +12,9 @@ func (handler *DbHandler) Update(request models.IRequest) error {
 	}
 	defer db.Close()
 	req := request.GetBaseRequest()
-
+	model := handler.GetModelInstance()
 	query := db.
-		Model(req.Model).
+		Model(model).
 		Where("id=?", req.ID)
 
 	dbc := query.Update(req.Body)
