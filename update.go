@@ -5,12 +5,17 @@ import (
 	"github.com/go-ginger/models/errors"
 )
 
-func (handler *DbHandler) Update(request models.IRequest) error {
+func (handler *DbHandler) Update(request models.IRequest) (err error) {
 	db, err := GetDb()
 	if err != nil {
-		return err
+		return
 	}
-	defer db.Close()
+	defer func() {
+		e := db.Close()
+		if e != nil {
+			err = e
+		}
+	}()
 	req := request.GetBaseRequest()
 	model := handler.GetModelInstance()
 	query := db.

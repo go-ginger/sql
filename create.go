@@ -11,7 +11,12 @@ func (handler *DbHandler) Insert(request models.IRequest) (result interface{}, e
 	if err != nil {
 		return
 	}
-	defer db.Close()
+	defer func() {
+		e := db.Close()
+		if e != nil {
+			err = e
+		}
+	}()
 	dbc := db.Create(req.Body)
 	if dbc.Error != nil {
 		return nil, errors.HandleError(dbc.Error)

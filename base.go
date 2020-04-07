@@ -8,10 +8,10 @@ import (
 type BaseModel struct {
 	models.BaseModel `json:"-" gorm:"-"`
 
-	ID        uint64     `json:"id,omitempty" gorm:"primary_key,AUTO_INCREMENT"`
-	CreatedAt time.Time  `json:"created_at,omitempty" sql:"index"`
-	UpdatedAt time.Time  `json:"updated_at,omitempty"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	ID        uint64     `json:"id,omitempty" gorm:"column:id;primary_key,AUTO_INCREMENT"`
+	CreatedAt time.Time  `json:"created_at,omitempty" sql:"index" gorm:"column:created_at;not null"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
 }
 
 func (base *BaseModel) updateFromBase() {

@@ -18,7 +18,12 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() {
+		e := db.Close()
+		if e != nil {
+			err = e
+		}
+	}()
 	req := request.GetBaseRequest()
 
 	var q interface{}
@@ -30,8 +35,8 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 
 	done := make(chan bool, 1)
 
-	items := handler.GetModelsInstance()
-	query := db.Model(items)
+	model := handler.GetModelInstance()
+	query := db.Model(model)
 
 	if q != nil && params != nil {
 		query = query.Where(q, params...)
@@ -40,7 +45,6 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	var totalCount uint64
 	go handler.countRecords(query, done, &totalCount)
 
-	//var result = &request.Result //helpers.CreateArray(reflect.TypeOf(handler.Model), 0)
 	if req.Sort != nil {
 		for _, s := range *req.Sort {
 			sort := s.Name
@@ -50,6 +54,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 			query = query.Order(sort)
 		}
 	}
+	items := handler.GetModelsInstancePtr()
 	query.Limit(req.PerPage).Offset(offset).Find(items)
 	<-done
 
@@ -71,7 +76,12 @@ func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() {
+		e := db.Close()
+		if e != nil {
+			err = e
+		}
+	}()
 	req := request.GetBaseRequest()
 
 	var q interface{}
@@ -88,7 +98,7 @@ func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel
 	dbc := query.Find(model)
 	if dbc.Error != nil {
 		if dbc.RecordNotFound() {
-			return nil, errors.GetError(errors.NotFoundError)
+			return nil, errors.GetError(request, errors.NotFoundError)
 		}
 		return nil, errors.HandleError(dbc.Error)
 	}
@@ -102,7 +112,12 @@ func (handler *DbHandler) Select(request models.IRequest, tableName string, sele
 	if err != nil {
 		return
 	}
-	defer db.Close()
+	defer func() {
+		e := db.Close()
+		if e != nil {
+			err = e
+		}
+	}()
 	req := request.GetBaseRequest()
 	var q interface{}
 	var params []interface{}
