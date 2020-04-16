@@ -7,14 +7,16 @@ import (
 
 func (handler *DbHandler) Insert(request models.IRequest) (result interface{}, err error) {
 	req := request.GetBaseRequest()
-	db, err := GetDb()
+	db, closeAtEnd, err := GetDb(request)
 	if err != nil {
 		return
 	}
 	defer func() {
-		e := db.Close()
-		if e != nil {
-			err = e
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
 		}
 	}()
 	dbc := db.Create(req.Body)

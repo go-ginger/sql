@@ -14,14 +14,16 @@ func (handler *DbHandler) countRecords(db *gorm.DB, done chan bool, count *uint6
 }
 
 func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateResult, error) {
-	db, err := GetDb()
+	db, closeAtEnd, err := GetDb(request)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		e := db.Close()
-		if e != nil {
-			err = e
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
 		}
 	}()
 	req := request.GetBaseRequest()
@@ -72,14 +74,16 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 }
 
 func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel, err error) {
-	db, err := GetDb()
+	db, closeAtEnd, err := GetDb(request)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		e := db.Close()
-		if e != nil {
-			err = e
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
 		}
 	}()
 	req := request.GetBaseRequest()
@@ -108,14 +112,16 @@ func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel
 
 func (handler *DbHandler) Select(request models.IRequest, tableName string, selectQuery string,
 	dest interface{}, args ...interface{}) (err error) {
-	db, err := GetDb()
+	db, closeAtEnd, err := GetDb(request)
 	if err != nil {
 		return
 	}
 	defer func() {
-		e := db.Close()
-		if e != nil {
-			err = e
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
 		}
 	}()
 	req := request.GetBaseRequest()

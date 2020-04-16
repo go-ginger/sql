@@ -6,14 +6,16 @@ import (
 )
 
 func (handler *DbHandler) Update(request models.IRequest) (err error) {
-	db, err := GetDb()
+	db, closeAtEnd, err := GetDb(request)
 	if err != nil {
 		return
 	}
 	defer func() {
-		e := db.Close()
-		if e != nil {
-			err = e
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
 		}
 	}()
 	req := request.GetBaseRequest()
