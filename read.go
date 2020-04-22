@@ -4,14 +4,14 @@ import (
 	"github.com/go-ginger/models"
 	"github.com/go-ginger/models/errors"
 	"github.com/go-ginger/mts"
-	"github.com/jinzhu/gorm"
 	"math"
+	"reflect"
 )
 
-func (handler *DbHandler) countRecords(db *gorm.DB, done chan bool, count *uint64) {
-	db.Count(count)
-	done <- true
-}
+//func (handler *DbHandler) countRecords(db *gorm.DB, done chan bool, count *uint64) {
+//	db.Count(count)
+//	done <- true
+//}
 
 func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateResult, error) {
 	db, closeAtEnd, err := GetDb(request)
@@ -35,7 +35,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	}
 	offset := (req.Page - 1) * req.PerPage
 
-	done := make(chan bool, 1)
+	//done := make(chan bool, 1)
 
 	model := handler.GetModelInstance()
 	query := db.Model(model)
@@ -45,7 +45,10 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	}
 
 	var totalCount uint64
-	go handler.countRecords(query, done, &totalCount)
+	if ignoreCount := request.GetTemp("ignore_count"); ignoreCount == nil || !ignoreCount.(bool) {
+		//go handler.countRecords(query, done, &totalCount)
+		query.Count(&totalCount)
+	}
 
 	if req.Sort != nil {
 		for _, s := range *req.Sort {
@@ -58,7 +61,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	}
 	items := handler.GetModelsInstancePtr()
 	query.Limit(req.PerPage).Offset(offset).Find(items)
-	<-done
+	//<-done
 
 	pageCount := uint64(math.Ceil(float64(totalCount) / float64(req.PerPage)))
 	return &models.PaginateResult{
@@ -135,5 +138,29 @@ func (handler *DbHandler) Select(request models.IRequest, tableName string, sele
 		query = query.Where(q, params...)
 	}
 	query.Scan(dest)
+	return
+}
+
+func (handler *DbHandler) First(request models.IRequest) (result models.IBaseModel, err error) {
+	request.SetTemp("ignore_count", true)
+	req := request.GetBaseRequest()
+	req.Page = 1
+	req.PerPage = 1
+	pr, e := handler.DoPaginate(req)
+	if e != nil {
+		err = e
+		return
+	}
+	arrValue := reflect.ValueOf(pr.Items)
+	if arrValue.Kind() == reflect.Ptr {
+		arrValue = arrValue.Elem()
+	}
+	if arrValue.Len() > 0 {
+		ind0 := arrValue.Index(0)
+		if ind0.Kind() != reflect.Ptr {
+			ind0 = ind0.Addr()
+		}
+		result = ind0.Interface().(models.IBaseModel)
+	}
 	return
 }

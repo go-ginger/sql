@@ -2,7 +2,7 @@ package sql
 
 import (
 	"github.com/go-ginger/models"
-	"github.com/go-ginger/models/errors"
+	ge "github.com/go-ginger/models/errors"
 )
 
 func (handler *DbHandler) Update(request models.IRequest) (err error) {
@@ -23,10 +23,19 @@ func (handler *DbHandler) Update(request models.IRequest) (err error) {
 	query := db.
 		Model(model).
 		Where("id=?", req.ID)
-
-	dbc := query.Update(req.Body)
-	if dbc.Error != nil {
-		return errors.HandleError(dbc.Error)
+	if req.Body != nil {
+		dbc := query.Update(req.Body)
+		if dbc.Error != nil {
+			return ge.HandleError(dbc.Error)
+		}
+	}
+	iExtraUpdates := req.GetTemp("extra_updates")
+	if iExtraUpdates != nil {
+		extraUpdates := iExtraUpdates.([]interface{})
+		dbc := query.Update(extraUpdates...)
+		if dbc.Error != nil {
+			return ge.HandleError(dbc.Error)
+		}
 	}
 	if req.ExtraQuery != nil {
 		for key, value := range req.ExtraQuery {
