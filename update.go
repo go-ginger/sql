@@ -6,7 +6,7 @@ import (
 )
 
 func (handler *DbHandler) Update(request models.IRequest) (err error) {
-	db, closeAtEnd, err := GetDb(request)
+	db, closeAtEnd, err := handler.GetDb(request)
 	if err != nil {
 		return
 	}
@@ -21,8 +21,11 @@ func (handler *DbHandler) Update(request models.IRequest) (err error) {
 	req := request.GetBaseRequest()
 	model := handler.GetModelInstance()
 	query := db.
-		Model(model).
-		Where("id=?", req.ID)
+		Model(model)
+	if req.ID != nil {
+		query = query.Where("id=?", req.ID)
+	}
+	query, err = handler.HandleRequestFilters(request, query)
 	if req.Body != nil {
 		dbc := query.Update(req.Body)
 		if dbc.Error != nil {

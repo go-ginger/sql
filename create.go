@@ -7,7 +7,7 @@ import (
 
 func (handler *DbHandler) Insert(request models.IRequest) (result interface{}, err error) {
 	req := request.GetBaseRequest()
-	db, closeAtEnd, err := GetDb(request)
+	db, closeAtEnd, err := handler.GetDb(request)
 	if err != nil {
 		return
 	}

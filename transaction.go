@@ -7,7 +7,7 @@ import (
 )
 
 func (handler *DbHandler) StartTransaction(request models.IRequest) (err error) {
-	db, _, err := GetDb(request)
+	db, _, err := handler.GetDb(request)
 	if err != nil {
 		return
 	}

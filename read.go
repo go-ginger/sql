@@ -14,7 +14,7 @@ import (
 //}
 
 func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateResult, error) {
-	db, closeAtEnd, err := GetDb(request)
+	db, closeAtEnd, err := handler.GetDb(request)
 	if err != nil {
 		return nil, err
 	}
@@ -27,12 +27,6 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 		}
 	}()
 	req := request.GetBaseRequest()
-
-	var q interface{}
-	var params []interface{}
-	if req.Filters != nil {
-		q, params = mts.Parse(*req.Filters)
-	}
 	offset := (req.Page - 1) * req.PerPage
 
 	//done := make(chan bool, 1)
@@ -40,9 +34,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 	model := handler.GetModelInstance()
 	query := db.Model(model)
 
-	if q != nil && params != nil {
-		query = query.Where(q, params...)
-	}
+	query, err = handler.HandleRequestFilters(request, query)
 
 	var totalCount uint64
 	if ignoreCount := request.GetTemp("ignore_count"); ignoreCount == nil || !ignoreCount.(bool) {
@@ -60,7 +52,10 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 		}
 	}
 	items := handler.GetModelsInstancePtr()
-	query.Limit(req.PerPage).Offset(offset).Find(items)
+	query = query.Limit(req.PerPage).Offset(offset).Find(items)
+	if query.Error != nil {
+		return nil, errors.HandleError(query.Error)
+	}
 	//<-done
 
 	pageCount := uint64(math.Ceil(float64(totalCount) / float64(req.PerPage)))
@@ -77,7 +72,7 @@ func (handler *DbHandler) Paginate(request models.IRequest) (*models.PaginateRes
 }
 
 func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel, err error) {
-	db, closeAtEnd, err := GetDb(request)
+	db, closeAtEnd, err := handler.GetDb(request)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +110,7 @@ func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel
 
 func (handler *DbHandler) Select(request models.IRequest, tableName string, selectQuery string,
 	dest interface{}, args ...interface{}) (err error) {
-	db, closeAtEnd, err := GetDb(request)
+	db, closeAtEnd, err := handler.GetDb(request)
 	if err != nil {
 		return
 	}
@@ -137,7 +132,10 @@ func (handler *DbHandler) Select(request models.IRequest, tableName string, sele
 	if q != nil && params != nil {
 		query = query.Where(q, params...)
 	}
-	query.Scan(dest)
+	query = query.Scan(dest)
+	if query.Error != nil {
+		return errors.HandleError(query.Error)
+	}
 	return
 }
 
