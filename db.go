@@ -64,7 +64,7 @@ func (handler *DbHandler) HandleRequestFilters(request models.IRequest, existing
 	if req.Filters != nil {
 		q, params = mts.Parse(*req.Filters)
 	}
-	if q != nil && params != nil {
+	if q != nil {
 		query = query.Where(q, params...)
 	}
 	return

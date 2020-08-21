@@ -84,18 +84,9 @@ func (handler *DbHandler) Get(request models.IRequest) (result models.IBaseModel
 			}
 		}
 	}()
-	req := request.GetBaseRequest()
-
-	var q interface{}
-	var params []interface{}
-	if req.Filters != nil {
-		q, params = mts.Parse(*req.Filters)
-	}
 	model := handler.GetModelInstance()
 	query := db.Model(model)
-	if q != nil && params != nil {
-		query = query.Where(q, params...)
-	}
+	query, err = handler.HandleRequestFilters(request, query)
 
 	dbc := query.Find(model)
 	if dbc.Error != nil {
