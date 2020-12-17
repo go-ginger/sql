@@ -153,3 +153,65 @@ func (handler *DbHandler) First(request models.IRequest) (result models.IBaseMod
 	}
 	return
 }
+
+func (handler *DbHandler) Exists(request models.IRequest) (exists bool, err error) {
+	db, closeAtEnd, err := handler.GetDb(request)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
+		}
+	}()
+	var totalCount uint64
+	model := handler.GetModelInstance()
+	query := db.Model(model)
+	query, err = handler.HandleRequestFilters(request, query)
+
+	dbc := query.Count(&totalCount)
+	if dbc.Error != nil {
+		if dbc.RecordNotFound() {
+			return false, errors.GetError(request, errors.NotFoundError)
+		}
+		return false, errors.HandleError(dbc.Error)
+	}
+	if totalCount > 0 {
+		exists = true
+	}
+	return
+}
+
+func (handler *DbHandler) Count(request models.IRequest) (count uint64, err error) {
+	db, closeAtEnd, err := handler.GetDb(request)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if closeAtEnd {
+			e := db.Close()
+			if e != nil {
+				err = e
+			}
+		}
+	}()
+	var totalCount uint64
+	model := handler.GetModelInstance()
+	query := db.Model(model)
+	query, err = handler.HandleRequestFilters(request, query)
+
+	dbc := query.Count(&totalCount)
+	if dbc.Error != nil {
+		if dbc.RecordNotFound() {
+			return 0, errors.GetError(request, errors.NotFoundError)
+		}
+		return 0, errors.HandleError(dbc.Error)
+	}
+	if totalCount > 0 {
+		count = totalCount
+	}
+	return
+}
